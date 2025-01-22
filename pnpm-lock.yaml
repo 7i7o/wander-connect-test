@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@kranthicodes/wander-embedded-sdk':
-    specifier: ^0.0.2
-    version: 0.0.2
+    specifier: ^0.0.4
+    version: 0.0.4
   react:
     specifier: ^18.2.0
     version: 18.3.1
@@ -550,8 +550,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.5.0
     dev: true
 
-  /@kranthicodes/wander-embedded-sdk@0.0.2:
-    resolution: {integrity: sha512-e/2lDrV3U345QnbQhcLALxxHwsN8zTEHW9zc9bMYPhzQ/U+f+iIryjeztsoUeLBZN50KAgl7XGzcHHnpl+Dk8Q==}
+  /@kranthicodes/wander-embedded-sdk@0.0.4:
+    resolution: {integrity: sha512-90nziwiVnDnl9ixYgkWSH0dPZzV0u9TnDDR/DUT/X8QdeWF72sZOF78rm0Jc8Au9ABSn1u82kx5s1pJRlbHfTQ==}
     dev: false
 
   /@nodelib/fs.scandir@2.1.5:
