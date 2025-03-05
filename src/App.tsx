@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [message, setMessage] = useState("");
-  const [instance, setInstance] = useState<WanderEmbedded | null>(null);
+  const [, setInstance] = useState<WanderEmbedded | null>(null);
 
   useEffect(() => {
     const wanderInstance = new WanderEmbedded({
