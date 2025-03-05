@@ -1,4 +1,4 @@
-import { WanderEmbedded } from "@kranthicodes/wander-embedded-sdk";
+import { WanderEmbedded } from "@wanderapp/embed-sdk";
 import { useEffect, useState } from "react";
 
 function App() {
@@ -7,13 +7,29 @@ function App() {
 
   useEffect(() => {
     const wanderInstance = new WanderEmbedded({
-      theme: {
-        primary: "#000000",
-        secondary: "#000000",
+      iframe: {
+        routeLayout: {
+          auth: "sidebar",
+        },
+      },
+      button: {
+        position: "top-right",
+        theme: "light",
+        label: true,
+        wanderLogo: "default",
       },
     });
+
     setInstance(wanderInstance);
   }, []);
+
+  const handleSignMessage = async () => {
+    await (window.arweaveWallet as any)?.connect(["SIGNATURE"]);
+    await (window.arweaveWallet as any)?.signMessage(
+      new TextEncoder().encode(message)
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
       <div className="relative py-3 sm:max-w-xl sm:mx-auto">
@@ -22,12 +38,9 @@ function App() {
             <div className="divide-y divide-gray-200">
               <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                  Vite + React + TypeScript + Tailwind CSS
+                  App Title
                 </h1>
-                <p>
-                  Your new project is ready! Start editing and see the magic
-                  happen.
-                </p>
+                <p>Your new App is ready. This is just a placeholder.</p>
                 <div className="flex flex-col gap-2">
                   <input
                     type="text"
@@ -37,7 +50,7 @@ function App() {
                   />
                   <button
                     className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                    onClick={() => instance?.sendMessageToIframe(message)}
+                    onClick={handleSignMessage}
                   >
                     send message
                   </button>
