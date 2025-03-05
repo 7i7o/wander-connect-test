@@ -53,13 +53,59 @@ const ThemeIcons = {
   ),
 };
 
+const otherIcons = {
+  reload: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
+    </svg>
+  ),
+};
+
+// Add these constants at the top after imports
+const STORAGE_KEYS = {
+  IFRAME_MODE: "wander-iframe-mode",
+  THEME_MODE: "wander-theme-mode",
+} as const;
+
 function App() {
   const [instance, setInstance] = useState<WanderEmbedded | null>(null);
-  const [iframeMode, setIframeMode] = useState<IframeMode>("sidebar");
-  const [themeMode, setThemeMode] = useState<ThemeMode>("system");
+  const [iframeMode, setIframeMode] = useState<IframeMode>(() => {
+    const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
+    return (stored as IframeMode) || "sidebar";
+  });
+
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    const stored = localStorage.getItem(STORAGE_KEYS.THEME_MODE);
+    return (stored as ThemeMode) || "system";
+  });
+
+  const [needsReload, setNeedsReload] = useState(false);
 
   useEffect(() => {
-    // Apply theme to document
+    const storedMode = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
+    if (storedMode !== iframeMode) {
+      localStorage.setItem(STORAGE_KEYS.IFRAME_MODE, iframeMode);
+      setNeedsReload(true);
+    }
+  }, [iframeMode]);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem(STORAGE_KEYS.THEME_MODE);
+    if (storedTheme !== themeMode) {
+      localStorage.setItem(STORAGE_KEYS.THEME_MODE, themeMode);
+      setNeedsReload(true);
+    }
+
     const isDark =
       themeMode === "dark" ||
       (themeMode === "system" &&
@@ -70,9 +116,6 @@ function App() {
   }, [themeMode]);
 
   useEffect(() => {
-    // Cleanup previous instance
-    instance?.destroy();
-
     const wanderInstance = new WanderEmbedded({
       iframe: {
         routeLayout: {
@@ -81,6 +124,7 @@ function App() {
       },
       button: {
         position: "top-right",
+        theme: themeMode,
         label: true,
         wanderLogo: iframeMode === "sidebar" ? "default" : "text-color",
       },
@@ -88,16 +132,28 @@ function App() {
 
     setInstance(wanderInstance);
 
-    // Cleanup on component unmount
     return () => {
       wanderInstance.destroy();
     };
-  }, [iframeMode, themeMode]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-6 flex flex-col justify-center sm:py-12">
       <div className="relative py-3 sm:max-w-xl sm:mx-auto">
         <div className="relative px-4 py-10 bg-white dark:bg-gray-800 shadow-lg sm:rounded-3xl sm:p-20">
+          {needsReload && (
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
+                  text-white rounded-lg transition-colors"
+                title="Reload to apply changes"
+              >
+                <span>Reload</span>
+                {otherIcons.reload}
+              </button>
+            </div>
+          )}
           <div className="max-w-md mx-auto">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
