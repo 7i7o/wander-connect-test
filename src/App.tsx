@@ -27,7 +27,7 @@ const STORAGE_KEYS = {
 } as const;
 
 function App() {
-  const [instance, setInstance] = useState<WanderEmbedded | null>(null);
+  const [, setInstance] = useState<WanderEmbedded | null>(null);
   const [iframeMode, setIframeMode] = useState<IframeMode>(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
     return (stored as IframeMode) || "sidebar";
