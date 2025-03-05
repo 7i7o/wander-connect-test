@@ -20,7 +20,7 @@ function App() {
       },
       button: {
         position: "top-right",
-        theme: "light",
+        theme: "system",
         label: true,
         wanderLogo: iframeMode === "sidebar" ? "default" : "text-color",
       },
