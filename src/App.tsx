@@ -44,7 +44,7 @@ function App() {
   }, [iframeMode]);
 
   useEffect(() => {
-    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = false; //window.matchMedia("(prefers-color-scheme: dark)").matches;
     document.documentElement.classList.remove("dark", "light");
     document.documentElement.classList.add(isDark ? "dark" : "light");
   }, []);
