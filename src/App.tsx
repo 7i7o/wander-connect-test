@@ -62,6 +62,7 @@ function App() {
         label: true,
         wanderLogo: iframeMode === "sidebar" ? "default" : "text-color",
       },
+      src: "https://wander-embed-h4rd65o8v-community-labs.vercel.app",
     });
 
     setInstance(wanderInstance);
