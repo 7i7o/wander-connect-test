@@ -24,6 +24,8 @@ const otherIcons = {
 // Add these constants at the top after imports
 const STORAGE_KEYS = {
   IFRAME_MODE: "wander-iframe-mode",
+  BASE_URL: "wander-base-url",
+  BASE_SERVER_URL: "wander-base-server-url",
 } as const;
 
 function App() {
@@ -32,16 +34,29 @@ function App() {
     const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
     return (stored as IframeMode) || "sidebar";
   });
+  const [baseURL, setBaseURL] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.BASE_URL) || "https://embed-dev.wander.app";
+  });
+  const [baseServerURL, setBaseServerURL] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL) || "https://embed-api-dev.wander.app";
+  });
 
   const [needsReload, setNeedsReload] = useState(false);
 
   useEffect(() => {
     const storedMode = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
-    if (storedMode !== iframeMode) {
+    const storedBaseURL = localStorage.getItem(STORAGE_KEYS.BASE_URL);
+    const storedBaseServerURL = localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL);
+    
+    if (storedMode !== iframeMode || 
+        storedBaseURL !== baseURL || 
+        storedBaseServerURL !== baseServerURL) {
       localStorage.setItem(STORAGE_KEYS.IFRAME_MODE, iframeMode);
+      localStorage.setItem(STORAGE_KEYS.BASE_URL, baseURL);
+      localStorage.setItem(STORAGE_KEYS.BASE_SERVER_URL, baseServerURL);
       setNeedsReload(true);
     }
-  }, [iframeMode]);
+  }, [iframeMode, baseURL, baseServerURL]);
 
   useEffect(() => {
     const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -63,8 +78,8 @@ function App() {
         label: true,
         wanderLogo: iframeMode === "sidebar" ? "default" : "text-color",
       },
-      //   baseURL: 'http://localhost:5173',
-      baseServerURL: "http://localhost:3000",
+      baseURL: baseURL || undefined,
+      baseServerURL: baseServerURL || undefined,
     });
 
     setInstance(wanderInstance);
@@ -118,6 +133,38 @@ function App() {
                     <option value="half">Half</option>
                     <option value="sidebar">Sidebar</option>
                   </select>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                    Base URL (optional):
+                  </label>
+                  <input
+                    type="text"
+                    value={baseURL}
+                    onChange={(e) => setBaseURL(e.target.value)}
+                    placeholder="e.g., http://localhost:5173"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 rounded-md 
+                      text-gray-700 dark:text-gray-200
+                      focus:outline-none focus:ring-2 focus:ring-blue-500
+                      dark:focus:ring-blue-400"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                    Base Server URL:
+                  </label>
+                  <input
+                    type="text"
+                    value={baseServerURL}
+                    onChange={(e) => setBaseServerURL(e.target.value)}
+                    placeholder="e.g., http://localhost:3000"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 rounded-md 
+                      text-gray-700 dark:text-gray-200
+                      focus:outline-none focus:ring-2 focus:ring-blue-500
+                      dark:focus:ring-blue-400"
+                  />
                 </div>
               </div>
             </div>
