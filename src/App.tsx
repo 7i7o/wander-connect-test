@@ -63,6 +63,8 @@ function App() {
         label: true,
         wanderLogo: iframeMode === "sidebar" ? "default" : "text-color",
       },
+      baseURL: 'http://localhost:5173',
+      baseServerURL: 'http://localhost:3000',
     });
 
     setInstance(wanderInstance);
