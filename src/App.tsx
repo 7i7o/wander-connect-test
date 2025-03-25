@@ -51,6 +51,7 @@ function App() {
 
   useEffect(() => {
     const wanderInstance = new WanderEmbedded({
+      clientId: "ALPHA",
       iframe: {
         routeLayout: {
           auth: iframeMode,
@@ -101,7 +102,9 @@ function App() {
                   </label>
                   <select
                     value={iframeMode}
-                    onChange={(e) => setIframeMode(e.target.value as IframeMode)}
+                    onChange={(e) =>
+                      setIframeMode(e.target.value as IframeMode)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
                       bg-white dark:bg-gray-700 rounded-md 
                       text-gray-700 dark:text-gray-200
