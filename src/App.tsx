@@ -29,16 +29,22 @@ const STORAGE_KEYS = {
 } as const;
 
 function App() {
-  const [, setInstance] = useState<WanderEmbedded | null>(null);
+  const [wander, setWander] = useState<WanderEmbedded | null>(null);
   const [iframeMode, setIframeMode] = useState<IframeMode>(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
     return (stored as IframeMode) || "sidebar";
   });
   const [baseURL, setBaseURL] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEYS.BASE_URL) || "https://embed-dev.wander.app";
+    return (
+      localStorage.getItem(STORAGE_KEYS.BASE_URL) ||
+      "https://embed-dev.wander.app"
+    );
   });
   const [baseServerURL, setBaseServerURL] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL) || "https://embed-api-dev.wander.app";
+    return (
+      localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL) ||
+      "https://embed-api-dev.wander.app"
+    );
   });
 
   const [needsReload, setNeedsReload] = useState(false);
@@ -46,11 +52,15 @@ function App() {
   useEffect(() => {
     const storedMode = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
     const storedBaseURL = localStorage.getItem(STORAGE_KEYS.BASE_URL);
-    const storedBaseServerURL = localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL);
-    
-    if (storedMode !== iframeMode || 
-        storedBaseURL !== baseURL || 
-        storedBaseServerURL !== baseServerURL) {
+    const storedBaseServerURL = localStorage.getItem(
+      STORAGE_KEYS.BASE_SERVER_URL
+    );
+
+    if (
+      storedMode !== iframeMode ||
+      storedBaseURL !== baseURL ||
+      storedBaseServerURL !== baseServerURL
+    ) {
       localStorage.setItem(STORAGE_KEYS.IFRAME_MODE, iframeMode);
       localStorage.setItem(STORAGE_KEYS.BASE_URL, baseURL);
       localStorage.setItem(STORAGE_KEYS.BASE_SERVER_URL, baseServerURL);
@@ -82,7 +92,7 @@ function App() {
       baseServerURL: baseServerURL || undefined,
     });
 
-    setInstance(wanderInstance);
+    setWander(wanderInstance);
 
     return () => {
       wanderInstance.destroy();
@@ -160,11 +170,20 @@ function App() {
                     onChange={(e) => setBaseServerURL(e.target.value)}
                     placeholder="e.g., http://localhost:3000"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
-                      bg-white dark:bg-gray-700 rounded-md 
-                      text-gray-700 dark:text-gray-200
-                      focus:outline-none focus:ring-2 focus:ring-blue-500
-                      dark:focus:ring-blue-400"
+                    bg-white dark:bg-gray-700 rounded-md 
+                    text-gray-700 dark:text-gray-200
+                    focus:outline-none focus:ring-2 focus:ring-blue-500
+                    dark:focus:ring-blue-400"
                   />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
+                  text-white rounded-lg transition-colors"
+                    onClick={() => wander?.open()}
+                  >
+                    Open
+                  </button>
                 </div>
               </div>
             </div>
