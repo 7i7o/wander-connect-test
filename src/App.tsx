@@ -37,7 +37,7 @@ function App() {
   const [baseURL, setBaseURL] = useState<string>(() => {
     return (
       localStorage.getItem(STORAGE_KEYS.BASE_URL) ||
-      "https://embed-dev.wander.app"
+      "https://wander-embed-dev-git-chore-implement-embe-8bbfff-community-labs.vercel.app"
     );
   });
   const [baseServerURL, setBaseServerURL] = useState<string>(() => {
