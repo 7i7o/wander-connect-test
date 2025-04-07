@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@wanderapp/embed-sdk':
-        specifier: ^0.0.3
-        version: 0.0.3
+        specifier: ^0.0.4
+        version: 0.0.4
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -548,8 +548,8 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0
 
-  '@wanderapp/embed-sdk@0.0.3':
-    resolution: {integrity: sha512-+c0meFkLlZAjoj5x8wAt3t7/YtyZRKz+ow3QHa1UTI0GxJC3nXFDar3zYwCBoUhUkt4OmgoAIrS6f8x0sSarIg==}
+  '@wanderapp/embed-sdk@0.0.4':
+    resolution: {integrity: sha512-LGprnctxp/P8qa5S5uTc5G0/0fEMLidT+NW1T4Qs+r6QUU8m4d3eN3DxO+bboiRvzDOzicZRY2+Ajr5oyIcPfg==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1837,7 +1837,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@wanderapp/embed-sdk@0.0.3':
+  '@wanderapp/embed-sdk@0.0.4':
     dependencies:
       ts-deepmerge: 7.0.2
 
