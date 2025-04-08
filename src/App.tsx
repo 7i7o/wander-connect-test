@@ -99,6 +99,43 @@ function App() {
     };
   }, []);
 
+  const connect = async () => {
+    if (!window.arweaveWallet) {
+      alert("Can't find `window.arweaveWallet`");
+      return;
+    }
+
+    await window.arweaveWallet.connect([
+      "ACCESS_ADDRESS",
+      "ACCESS_PUBLIC_KEY",
+      "ACCESS_ALL_ADDRESSES",
+      "SIGN_TRANSACTION",
+      "ENCRYPT",
+      "DECRYPT",
+      "SIGNATURE",
+      "ACCESS_ARWEAVE_CONFIG",
+      "DISPATCH",
+      "ACCESS_TOKENS",
+    ]);
+  };
+
+  const encryptAndDecrypt = async () => {
+    if (!window.arweaveWallet) {
+      alert("Can't find `window.arweaveWallet`");
+      return;
+    }
+
+    const enc = new TextEncoder();
+    const message = enc.encode("This message was encrypted and decrypted!");
+    const encrypted = await window.arweaveWallet.encrypt(message, {
+      name: "RSA-OAEP",
+    });
+    const decrypted = await window.arweaveWallet.decrypt(encrypted, {
+      name: "RSA-OAEP",
+    });
+    alert(new TextDecoder().decode(decrypted));
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-6 flex flex-col justify-center sm:py-12">
       <div className="relative py-3 sm:max-w-xl sm:mx-auto">
@@ -183,6 +220,24 @@ function App() {
                     onClick={() => wander?.open()}
                   >
                     Open
+                  </button>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
+                  text-white rounded-lg transition-colors"
+                    onClick={() => connect()}
+                  >
+                    Connect
+                  </button>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
+                  text-white rounded-lg transition-colors"
+                    onClick={() => encryptAndDecrypt()}
+                  >
+                    Encrypt & Decrypt
                   </button>
                 </div>
               </div>
