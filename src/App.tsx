@@ -1,4 +1,4 @@
-import { WanderEmbedded } from "@wanderapp/embed-sdk";
+import { AuthInfo, WanderConnect } from "@wanderapp/connect";
 import { useEffect, useState } from "react";
 
 type IframeMode = "popup" | "modal" | "half" | "sidebar";
@@ -29,21 +29,22 @@ const STORAGE_KEYS = {
 } as const;
 
 function App() {
-  const [wander, setWander] = useState<WanderEmbedded | null>(null);
+  const [wander, setWander] = useState<WanderConnect | null>(null);
+  const [authInfo, setAuthInfo] = useState<AuthInfo | undefined>();
   const [iframeMode, setIframeMode] = useState<IframeMode>(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
-    return (stored as IframeMode) || "sidebar";
+    return (stored as IframeMode) || "popup";
   });
   const [baseURL, setBaseURL] = useState<string>(() => {
     return (
       localStorage.getItem(STORAGE_KEYS.BASE_URL) ||
-      "https://embed-dev.wander.app"
+      "https://connect.wander.app"
     );
   });
   const [baseServerURL, setBaseServerURL] = useState<string>(() => {
     return (
       localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL) ||
-      "https://embed-api-dev.wander.app"
+      "https://connect-api.wander.app"
     );
   });
 
@@ -75,8 +76,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const wanderInstance = new WanderEmbedded({
-      clientId: "ALPHA",
+    const wanderInstance = new WanderConnect({
+      clientId: "FREE_TRIAL",
       iframe: {
         routeLayout: {
           auth: iframeMode,
@@ -84,12 +85,16 @@ function App() {
       },
       button: {
         position: "top-right",
-        theme: "system",
-        label: true,
-        wanderLogo: iframeMode === "sidebar" ? "default" : "text-color",
+        // theme: "system",
+        // label: true,
+        // wanderLogo: iframeMode === "sidebar" ? "default" : "text-color",
       },
       baseURL: baseURL || undefined,
       baseServerURL: baseServerURL || undefined,
+      onAuth: (authInfo: AuthInfo) => {
+        if (authInfo) setAuthInfo(authInfo);
+        else setAuthInfo(undefined);
+      },
     });
 
     setWander(wanderInstance);
@@ -239,6 +244,13 @@ function App() {
                   >
                     Encrypt & Decrypt
                   </button>
+                </div>
+                <div className="flex flex-col gap-2">
+                  Auth Status: {authInfo?.authStatus}
+                  <br />
+                  Auth Type: {authInfo?.authType}
+                  <br />
+                  SDK User Details: {JSON.stringify(authInfo?.userDetails)}
                 </div>
               </div>
             </div>
