@@ -124,6 +124,23 @@ function App() {
     ]);
   };
 
+  const disconnect = async () => {
+    if (!window.arweaveWallet) {
+      alert("Can't find `window.arweaveWallet`");
+      return;
+    }
+
+    await window.arweaveWallet.disconnect();
+  };
+  const logout = async () => {
+    if (!wander) {
+      alert("Can't find `wander connect instance`");
+      return;
+    }
+
+    await wander.signOut();
+  };
+
   const encryptAndDecrypt = async () => {
     if (!window.arweaveWallet) {
       alert("Can't find `window.arweaveWallet`");
@@ -234,6 +251,24 @@ function App() {
                     onClick={() => connect()}
                   >
                     Connect
+                  </button>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
+                  text-white rounded-lg transition-colors"
+                    onClick={() => disconnect()}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
+                  text-white rounded-lg transition-colors"
+                    onClick={() => logout()}
+                  >
+                    Log Out
                   </button>
                 </div>
                 <div className="flex flex-col gap-2">
