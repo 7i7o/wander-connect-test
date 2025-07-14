@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@wanderapp/connect':
-        specifier: ^0.1.10
-        version: 0.1.10
+        specifier: ^0.1.11
+        version: 0.1.11
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -548,8 +548,8 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0
 
-  '@wanderapp/connect@0.1.10':
-    resolution: {integrity: sha512-fsErS2Ju8vSM21ua8Rlq5ulAejjiNxArmX5Ks+o34Cl/9EL1F5G7iegMiDFVihpy5oKIhALCYP476LPI9Xlz5A==}
+  '@wanderapp/connect@0.1.11':
+    resolution: {integrity: sha512-Aeu7Xetav9tuXgoBIbTv7rOdmgu6WO7IsUk07c8apQHbUkCTmDn+1/uS1Hs1yb9+ZDO2i8vmenTPGR2Ioc2E4w==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1837,7 +1837,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@wanderapp/connect@0.1.10':
+  '@wanderapp/connect@0.1.11':
     dependencies:
       ts-deepmerge: 7.0.3
 

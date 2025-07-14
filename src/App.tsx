@@ -1,5 +1,5 @@
-import { AuthInfo, WanderConnect } from "@wanderapp/connect";
-import { useEffect, useState } from "react";
+import { AuthInfo, BackupInfo, WanderConnect } from "@wanderapp/connect";
+import { useCallback, useEffect, useState } from "react";
 
 type IframeMode = "popup" | "modal" | "half" | "sidebar";
 
@@ -31,6 +31,7 @@ const STORAGE_KEYS = {
 function App() {
   const [wander, setWander] = useState<WanderConnect | null>(null);
   const [authInfo, setAuthInfo] = useState<AuthInfo | undefined>();
+  const [backupInfo, setBackupInfo] = useState<BackupInfo | undefined>();
   const [iframeMode, setIframeMode] = useState<IframeMode>(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
     return (stored as IframeMode) || "popup";
@@ -75,6 +76,16 @@ function App() {
     document.documentElement.classList.add(isDark ? "dark" : "light");
   }, []);
 
+  const handleOnAuth = useCallback((authInfo: AuthInfo) => {
+    if (authInfo) {
+      setAuthInfo(authInfo);
+    } else setAuthInfo(undefined);
+  }, []);
+  const handleOnBackup = useCallback((b: BackupInfo) => {
+    console.log("[ BackupInfo ] ", b);
+    setBackupInfo(b);
+  }, []);
+
   useEffect(() => {
     const wanderInstance = new WanderConnect({
       clientId: "FREE_TRIAL",
@@ -91,10 +102,8 @@ function App() {
       },
       baseURL: baseURL || undefined,
       baseServerURL: baseServerURL || undefined,
-      onAuth: (authInfo: AuthInfo) => {
-        if (authInfo) setAuthInfo(authInfo);
-        else setAuthInfo(undefined);
-      },
+      onAuth: handleOnAuth,
+      onBackup: handleOnBackup,
     });
 
     setWander(wanderInstance);
@@ -235,13 +244,20 @@ function App() {
                     dark:focus:ring-blue-400"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-row w-full gap-2">
                   <button
                     className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors"
+                  text-white rounded-lg transition-colors w-1/2"
                     onClick={() => wander?.open()}
                   >
                     Open
+                  </button>
+                  <button
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
+                  text-white rounded-lg transition-colors w-1/2"
+                    onClick={() => wander?.open("backup")}
+                  >
+                    Open Backup
                   </button>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -286,6 +302,11 @@ function App() {
                   Auth Type: {authInfo?.authType}
                   <br />
                   SDK User Details: {JSON.stringify(authInfo?.userDetails)}
+                </div>
+                <div className="flex flex-col gap-2">
+                  Backup Message: {backupInfo?.backupMessage}
+                  <br />
+                  Backups Needed: {backupInfo?.backupsNeeded}
                 </div>
               </div>
             </div>
