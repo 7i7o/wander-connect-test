@@ -3,6 +3,28 @@ import { useCallback, useEffect, useState } from "react";
 
 type IframeMode = "popup" | "modal" | "half" | "sidebar";
 
+const SCREENSHOT_THEMES = [{
+  name: "default"
+}, {
+  name: "Brave Dark",
+  background: "#3B3B3F",
+}, {
+  name: "Brave Light",
+  background: "#FFFFFF",
+}, {
+  name: "Chrome Mobile Dark",
+  background: "#111510",
+}, {
+  name: "Chrome Mobile Light",
+  background: "#F7FBF4",
+}, {
+  name: "In App Dark",
+  background: "#1B1D21",
+}, {
+  name: "In App Light",
+  background: "#FFFFFF",
+}] as const;
+
 const otherIcons = {
   reload: (
     <svg
@@ -167,7 +189,31 @@ function App() {
     alert(new TextDecoder().decode(decrypted));
   };
 
-  return (
+  const [screenshotThemeIndex, setScreenshotThemeIndex] = useState(0);
+  const screenshotThemeName = SCREENSHOT_THEMES[screenshotThemeIndex].name;
+
+  const changeTheme = () => {
+    const nextScreenshotThemeIndex = (screenshotThemeIndex + 1) % SCREENSHOT_THEMES.length;
+
+    setScreenshotThemeIndex(nextScreenshotThemeIndex);
+
+    const { documentElement } = document;
+    const rootElement = document.querySelector("body > div > div") as HTMLDivElement;
+
+    if (!rootElement) return;
+
+    const screenshotTheme = SCREENSHOT_THEMES[nextScreenshotThemeIndex];
+
+    if (screenshotTheme.name === "default") {
+      documentElement.removeAttribute("style");
+      rootElement.removeAttribute("style");
+    } else {
+      documentElement.style.background = screenshotTheme.background;
+      rootElement.style.display = "none";
+    }
+  }
+
+  return (<>
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-6 flex flex-col justify-center sm:py-12">
       <div className="relative py-3 sm:max-w-xl sm:mx-auto">
         <div className="relative px-4 py-10 bg-white dark:bg-gray-800 shadow-lg sm:rounded-3xl sm:p-20">
@@ -190,6 +236,7 @@ function App() {
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                   App Title
                 </h1>
+                { screenshotThemeName === "default" ? null : <p>Screenshot Mode: { screenshotThemeName }</p>}
                 <p>Your new App is ready. This is just a placeholder.</p>
                 <div className="flex flex-col gap-2">
                   <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
@@ -314,7 +361,9 @@ function App() {
         </div>
       </div>
     </div>
-  );
+
+    <button className="fixed right-2 bottom-2 w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors" onClick={ changeTheme }>📸</button>
+  </>);
 }
 
 export default App;
