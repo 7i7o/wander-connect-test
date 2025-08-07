@@ -37,7 +37,21 @@ import {
 import { Separator } from "./components/ui/separator";
 import { Collapsible, CollapsibleTrigger } from "./components/ui/collapsible";
 import { CollapsibleContent } from "@radix-ui/react-collapsible";
-import { Moon, RefreshCwIcon, Sun } from "lucide-react";
+import {
+  Cable,
+  DatabaseBackupIcon,
+  DoorOpenIcon,
+  FolderOpen,
+  FolderOpenIcon,
+  Link2Icon,
+  LockIcon,
+  LockOpenIcon,
+  LogOut,
+  Moon,
+  RefreshCwIcon,
+  Sun,
+  UnplugIcon,
+} from "lucide-react";
 
 type IframeMode = "popup" | "modal" | "half" | "sidebar";
 
@@ -313,7 +327,14 @@ function App() {
       <div className="flex min-h-screen w-full pt-20 pb-20 justify-center bg-accent">
         <Card className="w-full max-w-xl">
           <CardHeader>
-            <CardTitle>Wander Connect Test</CardTitle>
+            <CardTitle className="flex items-center">
+              <img
+                src="/logo.svg"
+                alt=""
+                className="inline-flex w-8 h-8 mr-2"
+              />
+              Wander Connect Test
+            </CardTitle>
             <CardDescription>
               Simple App to test Wander Connect
               {screenshotThemeName === "default" ? null : (
@@ -334,7 +355,7 @@ function App() {
           <CardContent>
             <div className="flex flex-col gap-3">
               <div className="grid w-full  items-center gap-2">
-                <Label>Select iframe mode:</Label>
+                <Label>Layout Mode</Label>
                 <div className="flex items-center justify-between">
                   <Select
                     value={iframeMode}
@@ -365,7 +386,7 @@ function App() {
                 </div>
               </div>
               <div className="grid w-full items-center gap-2">
-                <Label>Base URL (optional):</Label>
+                <Label>Base URL</Label>
                 <Input
                   type="text"
                   value={baseURL}
@@ -374,7 +395,7 @@ function App() {
                 />
               </div>
               <div className="grid w-full items-center gap-2">
-                <Label>Base Server URL:</Label>
+                <Label>Base Server URL</Label>
                 <Input
                   type="text"
                   value={baseServerURL}
@@ -383,19 +404,34 @@ function App() {
                 />
               </div>
               <div className="w-full grid grid-cols-2 gap-2">
-                <Button onClick={() => wander?.open()}>Open</Button>
+                <Button onClick={() => wander?.open()}>
+                  <DoorOpenIcon />
+                  Open
+                </Button>
                 <Button onClick={() => wander?.open("backup")}>
+                  <DatabaseBackupIcon />
                   Open Backup
                 </Button>
               </div>
               <div className="w-full grid grid-cols-2 gap-2">
-                <Button onClick={() => connect()}>Connect</Button>
-                <Button onClick={() => disconnect()}>Disconnect</Button>
+                <Button onClick={() => connect()}>
+                  <Link2Icon />
+                  Connect
+                </Button>
+                <Button onClick={() => disconnect()}>
+                  <UnplugIcon />
+                  Disconnect
+                </Button>
               </div>
               <div className="w-full grid grid-cols-2 gap-2">
-                <Button onClick={() => logout()}>Log Out</Button>
+                <Button onClick={() => logout()}>
+                  <LogOut />
+                  Log Out
+                </Button>
                 <Button onClick={() => encryptAndDecrypt()}>
-                  Encrypt & Decrypt
+                  <LockIcon />
+                  Encrypt/Decrypt
+                  <LockOpenIcon />
                 </Button>
               </div>
             </div>
