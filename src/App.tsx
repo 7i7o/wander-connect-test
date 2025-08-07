@@ -26,23 +26,13 @@ import {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "./components/ui/table";
 import { Separator } from "./components/ui/separator";
 import { Collapsible, CollapsibleTrigger } from "./components/ui/collapsible";
 import { CollapsibleContent } from "@radix-ui/react-collapsible";
 import {
-  Cable,
   DatabaseBackupIcon,
   DoorOpenIcon,
-  FolderOpen,
-  FolderOpenIcon,
   Link2Icon,
   LockIcon,
   LockOpenIcon,
