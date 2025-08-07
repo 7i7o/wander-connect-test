@@ -450,12 +450,12 @@ function App() {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <Table>
-                  <TableHeader>
+                  {/* <TableHeader>
                     <TableRow>
                       <TableHead>Key</TableHead>
                       <TableHead>Value</TableHead>
                     </TableRow>
-                  </TableHeader>
+                  </TableHeader> */}
                   <TableBody>
                     {flattenedAuthInfo.map((item, i) => (
                       <TableRow key={i}>
