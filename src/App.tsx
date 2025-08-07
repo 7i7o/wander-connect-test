@@ -1,29 +1,69 @@
 import { AuthInfo, BackupInfo, WanderConnect } from "@wanderapp/connect";
 import { useCallback, useEffect, useState } from "react";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { Label } from "./components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./components/ui/table";
+import { ScrollArea } from "./components/ui/scroll-area";
 
 type IframeMode = "popup" | "modal" | "half" | "sidebar";
 
-const SCREENSHOT_THEMES = [{
-  name: "default"
-}, {
-  name: "Brave Dark",
-  background: "#3B3B3F",
-}, {
-  name: "Brave Light",
-  background: "#FFFFFF",
-}, {
-  name: "Chrome Mobile Dark",
-  background: "#111510",
-}, {
-  name: "Chrome Mobile Light",
-  background: "#F7FBF4",
-}, {
-  name: "In App Dark",
-  background: "#1B1D21",
-}, {
-  name: "In App Light",
-  background: "#FFFFFF",
-}] as const;
+const SCREENSHOT_THEMES = [
+  {
+    name: "default",
+  },
+  {
+    name: "Brave Dark",
+    background: "#3B3B3F",
+  },
+  {
+    name: "Brave Light",
+    background: "#FFFFFF",
+  },
+  {
+    name: "Chrome Mobile Dark",
+    background: "#111510",
+  },
+  {
+    name: "Chrome Mobile Light",
+    background: "#F7FBF4",
+  },
+  {
+    name: "In App Dark",
+    background: "#1B1D21",
+  },
+  {
+    name: "In App Light",
+    background: "#FFFFFF",
+  },
+] as const;
 
 const otherIcons = {
   reload: (
@@ -50,10 +90,59 @@ const STORAGE_KEYS = {
   BASE_SERVER_URL: "wander-base-server-url",
 } as const;
 
+function flattenObject(
+  obj: any,
+  prefix: string = "",
+  result: Record<string, any> = {}
+): Record<string, any> {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      const newKey = prefix ? `${prefix}.${key}` : key;
+
+      if (value === null || value === undefined || value === "" || !value)
+        continue;
+
+      if (value instanceof Date) result[newKey] = value.toISOString();
+      else if (typeof value === "boolean")
+        result[newKey] = value ? "True" : "False";
+      else {
+        if (typeof value === "object" && value.constructor === Object)
+          flattenObject(value, newKey, result);
+        else result[newKey] = value;
+      }
+    }
+  }
+  return result;
+}
+
+interface FlattenedData {
+  key: string;
+  value: any;
+}
+
+function getTableData(data: AuthInfo | BackupInfo): Array<FlattenedData> {
+  const flattenedData = flattenObject(data);
+  const tableData: Array<{
+    key: string;
+    value: any;
+  }> = [];
+  Object.entries(flattenedData).forEach(([key, value]) => {
+    tableData.push({ key, value });
+  });
+  return tableData;
+}
+
 function App() {
   const [wander, setWander] = useState<WanderConnect | null>(null);
   const [authInfo, setAuthInfo] = useState<AuthInfo | undefined>();
+  const [flattenedAuthInfo, setFlattenedAuthInfo] = useState<FlattenedData[]>(
+    []
+  );
   const [backupInfo, setBackupInfo] = useState<BackupInfo | undefined>();
+  const [flattenedBackupInfo, setFlattenedBackupInfo] = useState<
+    FlattenedData[]
+  >([]);
   const [iframeMode, setIframeMode] = useState<IframeMode>(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
     return (stored as IframeMode) || "popup";
@@ -101,11 +190,16 @@ function App() {
   const handleOnAuth = useCallback((authInfo: AuthInfo) => {
     if (authInfo) {
       setAuthInfo(authInfo);
-    } else setAuthInfo(undefined);
+      setFlattenedAuthInfo(getTableData(authInfo));
+    } else {
+      setAuthInfo(undefined);
+      setFlattenedAuthInfo([]);
+    }
   }, []);
   const handleOnBackup = useCallback((b: BackupInfo) => {
     console.log("[ BackupInfo ] ", b);
     setBackupInfo(b);
+    setFlattenedBackupInfo(getTableData(b));
   }, []);
 
   useEffect(() => {
@@ -193,12 +287,15 @@ function App() {
   const screenshotThemeName = SCREENSHOT_THEMES[screenshotThemeIndex].name;
 
   const changeTheme = () => {
-    const nextScreenshotThemeIndex = (screenshotThemeIndex + 1) % SCREENSHOT_THEMES.length;
+    const nextScreenshotThemeIndex =
+      (screenshotThemeIndex + 1) % SCREENSHOT_THEMES.length;
 
     setScreenshotThemeIndex(nextScreenshotThemeIndex);
 
     const { documentElement } = document;
-    const rootElement = document.querySelector("body > div > div") as HTMLDivElement;
+    const rootElement = document.querySelector(
+      "body > div > div"
+    ) as HTMLDivElement;
 
     if (!rootElement) return;
 
@@ -211,159 +308,119 @@ function App() {
       documentElement.style.background = screenshotTheme.background;
       rootElement.style.display = "none";
     }
-  }
+  };
 
-  return (<>
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-6 flex flex-col justify-center sm:py-12">
-      <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-        <div className="relative px-4 py-10 bg-white dark:bg-gray-800 shadow-lg sm:rounded-3xl sm:p-20">
-          {needsReload && (
-            <div className="absolute top-4 right-4">
-              <button
-                onClick={() => window.location.reload()}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors"
-                title="Reload to apply changes"
-              >
-                <span>Reload</span>
-                {otherIcons.reload}
-              </button>
-            </div>
-          )}
-          <div className="max-w-md mx-auto">
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              <div className="py-8 text-base leading-6 space-y-4 text-gray-700 dark:text-gray-300 sm:text-lg sm:leading-7">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  App Title
-                </h1>
-                { screenshotThemeName === "default" ? null : <p>Screenshot Mode: { screenshotThemeName }</p>}
-                <p>Your new App is ready. This is just a placeholder.</p>
-                <div className="flex flex-col gap-2">
-                  <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-                    Select iframe mode:
-                  </label>
-                  <select
-                    value={iframeMode}
-                    onChange={(e) =>
-                      setIframeMode(e.target.value as IframeMode)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
-                      bg-white dark:bg-gray-700 rounded-md 
-                      text-gray-700 dark:text-gray-200
-                      focus:outline-none focus:ring-2 focus:ring-blue-500
-                      dark:focus:ring-blue-400"
-                  >
-                    <option value="popup">Popup</option>
-                    <option value="modal">Modal</option>
-                    <option value="half">Half</option>
-                    <option value="sidebar">Sidebar</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-                    Base URL (optional):
-                  </label>
-                  <input
-                    type="text"
-                    value={baseURL}
-                    onChange={(e) => setBaseURL(e.target.value)}
-                    placeholder="e.g., http://localhost:5173"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
-                      bg-white dark:bg-gray-700 rounded-md 
-                      text-gray-700 dark:text-gray-200
-                      focus:outline-none focus:ring-2 focus:ring-blue-500
-                      dark:focus:ring-blue-400"
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-                    Base Server URL:
-                  </label>
-                  <input
-                    type="text"
-                    value={baseServerURL}
-                    onChange={(e) => setBaseServerURL(e.target.value)}
-                    placeholder="e.g., http://localhost:3000"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
-                    bg-white dark:bg-gray-700 rounded-md 
-                    text-gray-700 dark:text-gray-200
-                    focus:outline-none focus:ring-2 focus:ring-blue-500
-                    dark:focus:ring-blue-400"
-                  />
-                </div>
-                <div className="flex flex-row w-full gap-2">
-                  <button
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors w-1/2"
-                    onClick={() => wander?.open()}
-                  >
-                    Open
-                  </button>
-                  <button
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors w-1/2"
-                    onClick={() => wander?.open("backup")}
-                  >
-                    Open Backup
-                  </button>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <button
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors"
-                    onClick={() => connect()}
-                  >
-                    Connect
-                  </button>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <button
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors"
-                    onClick={() => disconnect()}
-                  >
-                    Disconnect
-                  </button>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <button
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors"
-                    onClick={() => logout()}
-                  >
-                    Log Out
-                  </button>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <button
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 
-                  text-white rounded-lg transition-colors"
-                    onClick={() => encryptAndDecrypt()}
-                  >
-                    Encrypt & Decrypt
-                  </button>
-                </div>
-                <div className="flex flex-col gap-2">
-                  Auth Status: {authInfo?.authStatus}
-                  <br />
-                  Auth Type: {authInfo?.authType}
-                  <br />
-                  SDK User Details: {JSON.stringify(authInfo?.userDetails)}
-                </div>
-                <div className="flex flex-col gap-2">
-                  Backup Message: {backupInfo?.backupMessage}
-                  <br />
-                  Backups Needed: {backupInfo?.backupsNeeded}
-                </div>
+  return (
+    <>
+      <div className="flex w-full pt-20 pb-10 justify-center bg-accent">
+        <Card className="w-full max-w-3xl">
+          <CardHeader>
+            <CardTitle>Wander Connect Test</CardTitle>
+            <CardDescription>
+              Simple App to test Wander Connect
+              {screenshotThemeName === "default" ? null : (
+                <p>Screenshot Mode: {screenshotThemeName}</p>
+              )}
+            </CardDescription>
+            {needsReload && (
+              <CardAction>
+                <Button onClick={() => window.location.reload()}>
+                  {otherIcons.reload}
+                </Button>
+              </CardAction>
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-3">
+              <div className="grid w-full max-w-sm items-center gap-2">
+                <Label>Select iframe mode:</Label>
+                <Select
+                  value={iframeMode}
+                  onValueChange={(value) => setIframeMode(value as IframeMode)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select a fruit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Iframe Modes</SelectLabel>
+                      <SelectItem value="popup">Popup</SelectItem>
+                      <SelectItem value="modal">Modal</SelectItem>
+                      <SelectItem value="half">Half</SelectItem>
+                      <SelectItem value="sidebar">Sidebar</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
+              <div className="grid w-full max-w-sm items-center gap-2">
+                <Label>Base URL (optional):</Label>
+                <Input
+                  type="text"
+                  value={baseURL}
+                  onChange={(e) => setBaseURL(e.target.value)}
+                  placeholder="e.g., http://localhost:5173"
+                />
+              </div>
+              <div className="grid w-full max-w-sm items-center gap-2">
+                <Label>Base Server URL:</Label>
+                <Input
+                  type="text"
+                  value={baseServerURL}
+                  onChange={(e) => setBaseServerURL(e.target.value)}
+                  placeholder="e.g., http://localhost:3000"
+                />
+              </div>
+              <div className="w-full grid grid-cols-2 gap-2">
+                <Button onClick={() => wander?.open()}>Open</Button>
+                <Button onClick={() => wander?.open("backup")}>
+                  Open Backup
+                </Button>
+              </div>
+              <Button onClick={() => connect()}>Connect</Button>
+              <Button onClick={() => disconnect()}>Disconnect</Button>
+              <Button onClick={() => logout()}>Log Out</Button>
+              <Button onClick={() => encryptAndDecrypt()}>
+                Encrypt & Decrypt
+              </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+          <CardFooter className="flex-col gap-2">
+             <Table>
+                <TableCaption>Session Info</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Key</TableHead>
+                    <TableHead>Value</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {flattenedAuthInfo.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{item.key}</TableCell>
+                      <TableCell>{item.value}</TableCell>
+                    </TableRow>
+                  ))}
+                  {flattenedBackupInfo.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{item.key}</TableCell>
+                      <TableCell className="text-ellipsis">{item.value}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+          </CardFooter>
+        </Card>
       </div>
-    </div>
 
-    <button className="fixed right-2 bottom-2 w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors" onClick={ changeTheme }>📸</button>
-  </>);
+      <Button
+        className="fixed right-2 bottom-2 w-8 h-8 rounded-full transition-colors"
+        // className="fixed right-2 bottom-2 w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
+        onClick={changeTheme}
+      >
+        📸
+      </Button>
+    </>
+  );
 }
 
 export default App;
