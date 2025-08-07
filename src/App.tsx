@@ -1,4 +1,9 @@
-import { AuthInfo, BackupInfo, WanderConnect } from "@wanderapp/connect";
+import {
+  AuthInfo,
+  BackupInfo,
+  ThemeSetting,
+  WanderConnect,
+} from "@wanderapp/connect";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -24,14 +29,15 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "./components/ui/table";
-import { ScrollArea } from "./components/ui/scroll-area";
+import { Separator } from "./components/ui/separator";
+import { Collapsible, CollapsibleTrigger } from "./components/ui/collapsible";
+import { CollapsibleContent } from "@radix-ui/react-collapsible";
+import { Moon, RefreshCwIcon, Sun } from "lucide-react";
 
 type IframeMode = "popup" | "modal" | "half" | "sidebar";
 
@@ -64,24 +70,6 @@ const SCREENSHOT_THEMES = [
     background: "#FFFFFF",
   },
 ] as const;
-
-const otherIcons = {
-  reload: (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
-    </svg>
-  ),
-};
 
 // Add these constants at the top after imports
 const STORAGE_KEYS = {
@@ -134,12 +122,15 @@ function getTableData(data: AuthInfo | BackupInfo): Array<FlattenedData> {
 }
 
 function App() {
+  const [theme, setTheme] = useState("dark");
+  const linkRegEx = new RegExp("http(s)?://*");
+  const [isOpen, setIsOpen] = useState(false);
   const [wander, setWander] = useState<WanderConnect | null>(null);
-  const [authInfo, setAuthInfo] = useState<AuthInfo | undefined>();
+  //   const [authInfo, setAuthInfo] = useState<AuthInfo | undefined>();
   const [flattenedAuthInfo, setFlattenedAuthInfo] = useState<FlattenedData[]>(
     []
   );
-  const [backupInfo, setBackupInfo] = useState<BackupInfo | undefined>();
+  //   const [backupInfo, setBackupInfo] = useState<BackupInfo | undefined>();
   const [flattenedBackupInfo, setFlattenedBackupInfo] = useState<
     FlattenedData[]
   >([]);
@@ -161,6 +152,13 @@ function App() {
   });
 
   const [needsReload, setNeedsReload] = useState(false);
+
+  useEffect(() => {
+    if (wander) wander.setTheme(theme as ThemeSetting);
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+  }, [theme]);
 
   useEffect(() => {
     const storedMode = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
@@ -189,16 +187,16 @@ function App() {
 
   const handleOnAuth = useCallback((authInfo: AuthInfo) => {
     if (authInfo) {
-      setAuthInfo(authInfo);
+      //   setAuthInfo(authInfo);
       setFlattenedAuthInfo(getTableData(authInfo));
     } else {
-      setAuthInfo(undefined);
+      //   setAuthInfo(undefined);
       setFlattenedAuthInfo([]);
     }
   }, []);
   const handleOnBackup = useCallback((b: BackupInfo) => {
     console.log("[ BackupInfo ] ", b);
-    setBackupInfo(b);
+    // setBackupInfo(b);
     setFlattenedBackupInfo(getTableData(b));
   }, []);
 
@@ -312,8 +310,8 @@ function App() {
 
   return (
     <>
-      <div className="flex w-full pt-20 pb-10 justify-center bg-accent">
-        <Card className="w-full max-w-3xl">
+      <div className="flex min-h-screen w-full pt-20 pb-20 justify-center bg-accent">
+        <Card className="w-full max-w-xl">
           <CardHeader>
             <CardTitle>Wander Connect Test</CardTitle>
             <CardDescription>
@@ -322,37 +320,51 @@ function App() {
                 <p>Screenshot Mode: {screenshotThemeName}</p>
               )}
             </CardDescription>
-            {needsReload && (
-              <CardAction>
-                <Button onClick={() => window.location.reload()}>
-                  {otherIcons.reload}
-                </Button>
-              </CardAction>
-            )}
+            <CardAction>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              >
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3">
-              <div className="grid w-full max-w-sm items-center gap-2">
+              <div className="grid w-full  items-center gap-2">
                 <Label>Select iframe mode:</Label>
-                <Select
-                  value={iframeMode}
-                  onValueChange={(value) => setIframeMode(value as IframeMode)}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select a fruit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Iframe Modes</SelectLabel>
-                      <SelectItem value="popup">Popup</SelectItem>
-                      <SelectItem value="modal">Modal</SelectItem>
-                      <SelectItem value="half">Half</SelectItem>
-                      <SelectItem value="sidebar">Sidebar</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center justify-between">
+                  <Select
+                    value={iframeMode}
+                    onValueChange={(value) =>
+                      setIframeMode(value as IframeMode)
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a fruit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Iframe Modes</SelectLabel>
+                        <SelectItem value="popup">Popup</SelectItem>
+                        <SelectItem value="modal">Modal</SelectItem>
+                        <SelectItem value="half">Half</SelectItem>
+                        <SelectItem value="sidebar">Sidebar</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {needsReload ? (
+                    <Button onClick={() => window.location.reload()}>
+                      <RefreshCwIcon className="h-[1.2rem] w-[1.2rem]" />
+                    </Button>
+                  ) : (
+                    <></>
+                  )}
+                </div>
               </div>
-              <div className="grid w-full max-w-sm items-center gap-2">
+              <div className="grid w-full items-center gap-2">
                 <Label>Base URL (optional):</Label>
                 <Input
                   type="text"
@@ -361,7 +373,7 @@ function App() {
                   placeholder="e.g., http://localhost:5173"
                 />
               </div>
-              <div className="grid w-full max-w-sm items-center gap-2">
+              <div className="grid w-full items-center gap-2">
                 <Label>Base Server URL:</Label>
                 <Input
                   type="text"
@@ -376,38 +388,73 @@ function App() {
                   Open Backup
                 </Button>
               </div>
-              <Button onClick={() => connect()}>Connect</Button>
-              <Button onClick={() => disconnect()}>Disconnect</Button>
-              <Button onClick={() => logout()}>Log Out</Button>
-              <Button onClick={() => encryptAndDecrypt()}>
-                Encrypt & Decrypt
-              </Button>
+              <div className="w-full grid grid-cols-2 gap-2">
+                <Button onClick={() => connect()}>Connect</Button>
+                <Button onClick={() => disconnect()}>Disconnect</Button>
+              </div>
+              <div className="w-full grid grid-cols-2 gap-2">
+                <Button onClick={() => logout()}>Log Out</Button>
+                <Button onClick={() => encryptAndDecrypt()}>
+                  Encrypt & Decrypt
+                </Button>
+              </div>
             </div>
           </CardContent>
+          <Separator />
           <CardFooter className="flex-col gap-2">
-             <Table>
-                <TableCaption>Session Info</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Key</TableHead>
-                    <TableHead>Value</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {flattenedAuthInfo.map((item, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{item.key}</TableCell>
-                      <TableCell>{item.value}</TableCell>
+            <Collapsible
+              open={isOpen}
+              onOpenChange={setIsOpen}
+              className="flex w-full flex-col gap-2"
+            >
+              <CollapsibleTrigger asChild>
+                <Button variant="outline">
+                  <CardDescription>Session Info</CardDescription>
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Key</TableHead>
+                      <TableHead>Value</TableHead>
                     </TableRow>
-                  ))}
-                  {flattenedBackupInfo.map((item, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{item.key}</TableCell>
-                      <TableCell className="text-ellipsis">{item.value}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {flattenedAuthInfo.map((item, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium">
+                          {item.key}
+                        </TableCell>
+                        <TableCell>
+                          {typeof item.value === "string" &&
+                          linkRegEx.test(item.value) ? (
+                            <img
+                              src={item.value}
+                              alt="img"
+                              title={item.value}
+                              className="w-8 h-8 rounded-full"
+                            />
+                          ) : (
+                            item.value
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {flattenedBackupInfo.map((item, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium">
+                          {item.key}
+                        </TableCell>
+                        <TableCell className="text-ellipsis">
+                          {item.value}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CollapsibleContent>
+            </Collapsible>
           </CardFooter>
         </Card>
       </div>
