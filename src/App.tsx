@@ -30,6 +30,7 @@ import { Table, TableBody, TableCell, TableRow } from "./components/ui/table";
 import { Separator } from "./components/ui/separator";
 import { Collapsible, CollapsibleTrigger } from "./components/ui/collapsible";
 import { CollapsibleContent } from "@radix-ui/react-collapsible";
+import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 import {
   DatabaseBackupIcon,
   DoorOpenIcon,
@@ -80,7 +81,28 @@ const STORAGE_KEYS = {
   IFRAME_MODE: "wander-iframe-mode",
   BASE_URL: "wander-base-url",
   BASE_SERVER_URL: "wander-base-server-url",
+  ENVIRONMENT: "wander-environment",
 } as const;
+
+const ENVIRONMENTS = {
+  PRODUCTION: {
+    name: "Production",
+    baseURL: "https://connect.wander.app",
+    baseServerURL: "https://connect-api.wander.app",
+  },
+  DEVELOPMENT: {
+    name: "Development", 
+    baseURL: "https://connect-dev.wander.app",
+    baseServerURL: "https://connect-api-dev.wander.app",
+  },
+  CUSTOM: {
+    name: "Custom",
+    baseURL: "",
+    baseServerURL: "",
+  },
+} as const;
+
+type EnvironmentType = keyof typeof ENVIRONMENTS;
 
 function flattenObject(
   obj: any,
@@ -142,17 +164,30 @@ function App() {
     const stored = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
     return (stored as IframeMode) || "popup";
   });
-  const [baseURL, setBaseURL] = useState<string>(() => {
-    return (
-      localStorage.getItem(STORAGE_KEYS.BASE_URL) ||
-      "https://connect.wander.app"
-    );
+  
+  const [environment, setEnvironment] = useState<EnvironmentType>(() => {
+    const stored = localStorage.getItem(STORAGE_KEYS.ENVIRONMENT);
+    return (stored as EnvironmentType) || "PRODUCTION";
   });
+  
+  const [baseURL, setBaseURL] = useState<string>(() => {
+    const storedEnv = localStorage.getItem(STORAGE_KEYS.ENVIRONMENT) as EnvironmentType || "PRODUCTION";
+    const storedURL = localStorage.getItem(STORAGE_KEYS.BASE_URL);
+    
+    if (storedEnv === "CUSTOM" && storedURL) {
+      return storedURL;
+    }
+    return ENVIRONMENTS[storedEnv].baseURL;
+  });
+  
   const [baseServerURL, setBaseServerURL] = useState<string>(() => {
-    return (
-      localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL) ||
-      "https://connect-api.wander.app"
-    );
+    const storedEnv = localStorage.getItem(STORAGE_KEYS.ENVIRONMENT) as EnvironmentType || "PRODUCTION";
+    const storedServerURL = localStorage.getItem(STORAGE_KEYS.BASE_SERVER_URL);
+    
+    if (storedEnv === "CUSTOM" && storedServerURL) {
+      return storedServerURL;
+    }
+    return ENVIRONMENTS[storedEnv].baseServerURL;
   });
 
   const [needsReload, setNeedsReload] = useState(false);
@@ -166,6 +201,7 @@ function App() {
 
   useEffect(() => {
     const storedMode = localStorage.getItem(STORAGE_KEYS.IFRAME_MODE);
+    const storedEnvironment = localStorage.getItem(STORAGE_KEYS.ENVIRONMENT);
     const storedBaseURL = localStorage.getItem(STORAGE_KEYS.BASE_URL);
     const storedBaseServerURL = localStorage.getItem(
       STORAGE_KEYS.BASE_SERVER_URL
@@ -173,15 +209,19 @@ function App() {
 
     if (
       storedMode !== iframeMode ||
-      storedBaseURL !== baseURL ||
-      storedBaseServerURL !== baseServerURL
+      storedEnvironment !== environment ||
+      (environment === "CUSTOM" && storedBaseURL !== baseURL) ||
+      (environment === "CUSTOM" && storedBaseServerURL !== baseServerURL)
     ) {
       localStorage.setItem(STORAGE_KEYS.IFRAME_MODE, iframeMode);
-      localStorage.setItem(STORAGE_KEYS.BASE_URL, baseURL);
-      localStorage.setItem(STORAGE_KEYS.BASE_SERVER_URL, baseServerURL);
+      localStorage.setItem(STORAGE_KEYS.ENVIRONMENT, environment);
+      if (environment === "CUSTOM") {
+        localStorage.setItem(STORAGE_KEYS.BASE_URL, baseURL);
+        localStorage.setItem(STORAGE_KEYS.BASE_SERVER_URL, baseServerURL);
+      }
       setNeedsReload(true);
     }
-  }, [iframeMode, baseURL, baseServerURL]);
+  }, [iframeMode, environment, baseURL, baseServerURL]);
 
   useEffect(() => {
     const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -288,6 +328,15 @@ function App() {
   const [screenshotThemeIndex, setScreenshotThemeIndex] = useState(0);
   const screenshotThemeName = SCREENSHOT_THEMES[screenshotThemeIndex].name;
 
+  const handleEnvironmentChange = (newEnvironment: EnvironmentType) => {
+    setEnvironment(newEnvironment);
+    
+    if (newEnvironment !== "CUSTOM") {
+      setBaseURL(ENVIRONMENTS[newEnvironment].baseURL);
+      setBaseServerURL(ENVIRONMENTS[newEnvironment].baseServerURL);
+    }
+  };
+
   const changeTheme = () => {
     const nextScreenshotThemeIndex =
       (screenshotThemeIndex + 1) % SCREENSHOT_THEMES.length;
@@ -376,12 +425,30 @@ function App() {
                 </div>
               </div>
               <div className="grid w-full items-center gap-2">
+                <Label>Environment</Label>
+                <RadioGroup
+                  value={environment}
+                  onValueChange={handleEnvironmentChange}
+                  className="flex flex-row gap-6"
+                >
+                  {Object.entries(ENVIRONMENTS).map(([key, env]) => (
+                    <div key={key} className="flex items-center space-x-2">
+                      <RadioGroupItem value={key} id={key} />
+                      <Label htmlFor={key} className="text-sm font-normal cursor-pointer">
+                        {env.name}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+              <div className="grid w-full items-center gap-2">
                 <Label>Base URL</Label>
                 <Input
                   type="text"
                   value={baseURL}
                   onChange={(e) => setBaseURL(e.target.value)}
                   placeholder="e.g., http://localhost:5173"
+                  disabled={environment !== "CUSTOM"}
                 />
               </div>
               <div className="grid w-full items-center gap-2">
@@ -391,6 +458,7 @@ function App() {
                   value={baseServerURL}
                   onChange={(e) => setBaseServerURL(e.target.value)}
                   placeholder="e.g., http://localhost:3000"
+                  disabled={environment !== "CUSTOM"}
                 />
               </div>
               <div className="w-full grid grid-cols-2 gap-2">
