@@ -34,6 +34,7 @@ import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 import {
   DatabaseBackupIcon,
   DoorOpenIcon,
+  HomeIcon,
   Link2Icon,
   LockIcon,
   LockOpenIcon,
@@ -469,6 +470,10 @@ function App() {
                 <Button onClick={() => wander?.open("backup")}>
                   <DatabaseBackupIcon />
                   Open Backup
+                </Button>
+                <Button onClick={() => wander?.open("home")}>
+                  <HomeIcon />
+                  Open Home
                 </Button>
               </div>
               <div className="w-full grid grid-cols-2 gap-2">
