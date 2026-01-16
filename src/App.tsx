@@ -466,34 +466,34 @@ function App() {
                                     disabled={environment !== "CUSTOM"}
                                 />
                             </div>
-                            <div className="w-full grid grid-cols-2 gap-2">
+                            <div className="w-full grid grid-cols-3 gap-2">
                                 <Button onClick={() => wander?.open()}>
                                     <DoorOpenIcon />
                                     Open
                                 </Button>
-                                <Button onClick={() => wander?.open("backup")}>
-                                    <DatabaseBackupIcon />
-                                    Open Backup
-                                </Button>
                                 <Button onClick={() => wander?.open("home")}>
                                     <HomeIcon />
-                                    Open Home
+                                    Home
+                                </Button>
+                                <Button onClick={() => wander?.open("backup")}>
+                                    <DatabaseBackupIcon />
+                                    Backup
                                 </Button>
                                 <Button onClick={() => wander?.open("receive")}>
                                     <CoinsIcon />
-                                    Open Receive
+                                    Receive
                                 </Button>
                                 <Button onClick={() => wander?.open("receive-address")}>
                                     <WalletIcon />
-                                    Open Receive Address
+                                    Address
                                 </Button>
                                 <Button onClick={() => wander?.open("buy")}>
                                     <DollarSignIcon />
-                                    Open Buy
+                                    Buy
                                 </Button>
                                 <Button onClick={() => wander?.open("transactions")}>
                                     <ArrowRightLeftIcon />
-                                    Open Transactions
+                                    Transactions
                                 </Button>
                             </div>
                             <div className="w-full grid grid-cols-2 gap-2">
